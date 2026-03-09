@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-card {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            position: relative;
+        }
+        .test-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .test-btn:hover {
+            transform: scale(1.1);
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f4ff;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>按钮点击测试</h1>
+    
+    <div class="test-card" data-article-id="123">
+        <div class="test-btn">➜</div>
+        <h2>测试文章标题</h2>
+        <p>这是一个测试卡片，点击右上角的箭头按钮</p>
+    </div>
+
+    <div id="result">等待点击...</div>
+
+    <hr>
+    
+    <h2>实际API测试</h2>
+    <button onclick="testAPI()">测试API</button>
+    <div id="api-result"></div>
+
+    <script>
+        console.log('Test page loaded');
+
+        // 测试按钮点击
+        document.querySelectorAll('.test-btn').forEach(btn => {
+            console.log('Attaching event to button');
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                console.log('Button clicked!');
+                const card = this.closest('.test-card');
+                const articleId = card.dataset.articleId;
+                console.log('Article ID:', articleId);
+                document.getElementById('result').innerHTML = `
+                    <strong>成功！</strong><br>
+                    按钮被点击了<br>
+                    文章ID: ${articleId}
+                `;
+            });
+        });
+
+        // 测试API
+        async function testAPI() {
+            const resultDiv = document.getElementById('api-result');
+            resultDiv.innerHTML = '加载中...';
+            
+            try {
+                const response = await fetch('http://localhost:3000/api/articles');
+                const data = await response.json();
+                
+                if (data.success && data.data.length > 0) {
+                    const firstArticle = data.data[0];
+                    resultDiv.innerHTML = `
+                        <h3>API正常工作</h3>
+                        <p>文章数量: ${data.data.length}</p>
+                        <p>第一篇文章:</p>
+                        <ul>
+                            <li>ID: ${firstArticle.id}</li>
+                            <li>标题: ${firstArticle.title}</li>
+                            <li>分类: ${firstArticle.category}</li>
+                        </ul>
+                        <button onclick="testOpenArticle('${firstArticle.id}')">测试打开这篇文章</button>
+                    `;
+                } else {
+                    resultDiv.innerHTML = '<p style="color: red;">API返回数据为空</p>';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p style="color: red;">API错误: ${error.message}</p>`;
+            }
+        }
+
+        async function testOpenArticle(id) {
+            const resultDiv = document.getElementById('api-result');
+            resultDiv.innerHTML += '<br><br>正在加载文章详情...';
+            
+            try {
+                const response = await fetch(`http://localhost:3000/api/articles/${id}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultDiv.innerHTML += `
+                        <br><strong>✅ 文章详情加载成功！</strong>
+                        <br>标题: ${data.data.title}
+                        <br>概念层长度: ${data.data.layers[0].content.length} 字符
+                        <br>原理层长度: ${data.data.layers[1].content.length} 字符
+                    `;
+                } else {
+                    resultDiv.innerHTML += '<br><strong style="color: red;">❌ 加载失败</strong>';
+                }
+            } catch (error) {
+                resultDiv.innerHTML += `<br><strong style="color: red;">❌ 错误: ${error.message}</strong>`;
+            }
+        }
+    </script>
+</body>
+</html>

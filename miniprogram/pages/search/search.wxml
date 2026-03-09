@@ -1,0 +1,32 @@
+<view class="container">
+  <view class="search-box">
+    <input 
+      class="search-input" 
+      placeholder="搜索技术内容..."
+      value="{{keyword}}"
+      bindinput="onInput"
+      confirm-type="search"
+      bindconfirm="onSearch">
+    </input>
+    <button class="search-btn" bindtap="onSearch">搜索</button>
+  </view>
+
+  <view class="results" wx:if="{{searched}}">
+    <view class="result-item" wx:for="{{results}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}">
+      <text class="result-title">{{item.title}}</text>
+      <text class="result-summary">{{item.summary}}</text>
+      <view class="result-meta">
+        <text class="category">{{item.category}}</text>
+        <text class="time">{{item.publishTime}}</text>
+      </view>
+    </view>
+
+    <view class="no-result" wx:if="{{results.length === 0}}">
+      <text>未找到相关内容</text>
+    </view>
+  </view>
+
+  <view class="empty-state" wx:if="{{!searched}}">
+    <text>🔍 输入关键词开始搜索</text>
+  </view>
+</view>

@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>滴答学术 - AI技术播客平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .categories {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            overflow-x: auto;
+            padding: 10px 0;
+        }
+
+        .category-btn {
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid white;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s;
+        }
+
+        .category-btn:hover, .category-btn.active {
+            background: white;
+            color: #667eea;
+        }
+
+        .articles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .article-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        .view-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .view-btn:hover {
+            transform: scale(1.1) rotate(90deg);
+        }
+
+        .article-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            padding-right: 50px;
+        }
+
+        .article-link {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .article-summary {
+            color: #666;
+            line-height: 1.6;
+            margin-top: 10px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 30px;
+            border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 10;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 30px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: bold;
+            padding-right: 50px;
+        }
+
+        .layer-tabs {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .layer-tab {
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .layer-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .content-text {
+            line-height: 1.8;
+            color: #333;
+            white-space: pre-wrap;
+            font-size: 16px;
+        }
+
+        .content-text h1, .content-text h2, .content-text h3 {
+            margin: 20px 0 10px;
+            color: #667eea;
+        }
+
+        .content-text p {
+            margin-bottom: 15px;
+        }
+
+        .content-text ul, .content-text ol {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+
+        .content-text li {
+            margin-bottom: 8px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 滴答学术</h1>
+            <p>AI驱动的技术播客平台</p>
+        </div>
+
+        <div class="categories">
+            <button class="category-btn active" data-cat="all">全部</button>
+            <button class="category-btn" data-cat="world-model">AI世界模型</button>
+            <button class="category-btn" data-cat="embodied">具身智能</button>
+            <button class="category-btn" data-cat="bci">脑机接口</button>
+            <button class="category-btn" data-cat="chip">芯片架构</button>
+        </div>
+
+        <div class="articles-grid" id="grid">
+            <div class="loading">正在加载...</div>
+        </div>
+    </div>
+
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+                <div class="modal-title" id="modalTitle"></div>
+                <div class="layer-tabs">
+                    <div class="layer-tab active" data-layer="0">💡 概念</div>
+                    <div class="layer-tab" data-layer="1">🔬 原理</div>
+                    <div class="layer-tab" data-layer="2">💻 实现</div>
+                    <div class="layer-tab" data-layer="3">🚀 应用</div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="content-text" id="content"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allArticles = [];
+        let currentArticle = null;
+
+        // 加载文章数据
+        async function loadArticles(cat = 'all') {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '<div class="loading">加载中...</div>';
+
+            try {
+                // 如果还没加载过数据，从data.json加载
+                if (allArticles.length === 0) {
+                    const res = await fetch('./data.json');
+                    allArticles = await res.json();
+                    console.log('✅ 加载了', allArticles.length, '篇文章');
+                }
+                
+                // 过滤分类
+                const filtered = cat === 'all' 
+                    ? allArticles 
+                    : allArticles.filter(a => a.category === cat);
+                
+                if (filtered.length > 0) {
+                    displayArticles(filtered);
+                } else {
+                    grid.innerHTML = '<div class="loading">暂无文章</div>';
+                }
+            } catch (err) {
+                grid.innerHTML = '<div class="loading">加载失败: ' + err.message + '</div>';
+                console.error('Load error:', err);
+            }
+        }
+
+        // 显示文章列表
+        function displayArticles(articles) {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = articles.map(a => `
+                <div class="article-card">
+                    <div class="view-btn" data-id="${a.id}">➜</div>
+                    <div class="article-title">
+                        <a href="${a.sourceUrl}" target="_blank" class="article-link">${a.title} 🔗</a>
+                    </div>
+                    <div class="article-summary">${a.summary.substring(0, 150)}...</div>
+                </div>
+            `).join('');
+            
+            // 为所有查看按钮添加事件监听
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    openArticle(this.dataset.id);
+                });
+            });
+            
+            console.log('✅ 显示了', articles.length, '篇文章');
+        }
+
+        // 打开文章详情
+        function openArticle(id) {
+            console.log('🔵 打开文章:', id);
+            
+            const article = allArticles.find(a => a.id === id);
+            
+            if (article) {
+                currentArticle = article;
+                showModal();
+            } else {
+                alert('文章未找到');
+            }
+        }
+
+        // 显示模态框
+        function showModal() {
+            if (!currentArticle) return;
+            
+            document.getElementById('modalTitle').textContent = currentArticle.title;
+            switchLayer(0);
+            document.getElementById('modal').classList.add('show');
+            console.log('✅ 模态框已打开');
+        }
+
+        // 关闭模态框
+        function closeModal() {
+            document.getElementById('modal').classList.remove('show');
+        }
+
+        // 清理内容格式
+        function cleanContent(content) {
+            if (!content) return '⚠️ 暂无内容';
+            
+            let cleaned = content.trim();
+            
+            // 如果内容以 { 开头，说明是JSON格式，需要提取
+            if (cleaned.startsWith('{') || cleaned.startsWith('```json')) {
+                try {
+                    // 移除markdown代码块标记
+                    cleaned = cleaned.replace(/```json\s*/g, '').replace(/```\s*/g, '');
+                    
+                    // 尝试解析JSON
+                    const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+                    if (jsonMatch) {
+                        const parsed = JSON.parse(jsonMatch[0]);
+                        
+                        // 尝试多种方式提取内容
+                        if (parsed.content) {
+                            cleaned = parsed.content;
+                        } else if (parsed.layers && Array.isArray(parsed.layers)) {
+                            cleaned = parsed.layers.map(l => l.content).join('\n\n');
+                        } else {
+                            cleaned = content;
+                        }
+                    }
+                } catch (e) {
+                    console.warn('JSON解析失败，使用原始内容');
+                }
+            }
+            
+            // 清理转义字符
+            cleaned = cleaned.replace(/\\n/g, '\n');
+            cleaned = cleaned.replace(/\\"/g, '"');
+            cleaned = cleaned.replace(/\\t/g, '\t');
+            
+            // 如果内容太短或为空
+            if (cleaned.trim().length < 50) {
+                return '⚠️ 内容生成不完整\n\n该文章的这一层级内容可能在生成时出现了问题。\n建议：\n1. 尝试查看其他层级\n2. 点击标题查看原始论文\n3. 尝试其他文章';
+            }
+            
+            return cleaned;
+        }
+
+        // 切换层级
+        function switchLayer(index) {
+            if (!currentArticle) return;
+            
+            // 更新标签
+            document.querySelectorAll('.layer-tab').forEach((tab, i) => {
+                tab.classList.toggle('active', i === index);
+            });
+            
+            // 更新内容并清理格式
+            const layer = currentArticle.layers[index];
+            const content = cleanContent(layer.content);
+            document.getElementById('content').textContent = content;
+            
+            console.log('✅ 切换到层级', index, '- 内容长度:', content.length);
+        }
+
+        // 分类按钮
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                loadArticles(btn.dataset.cat);
+            });
+        });
+
+        // 层级标签
+        document.querySelectorAll('.layer-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                switchLayer(parseInt(tab.dataset.layer));
+            });
+        });
+
+        // 初始加载
+        loadArticles();
+        console.log('🚀 静态版本页面已加载');
+    </script>
+</body>
+</html>

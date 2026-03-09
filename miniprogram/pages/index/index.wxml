@@ -1,0 +1,50 @@
+<view class="container">
+  <!-- 分类导航 -->
+  <scroll-view class="category-nav" scroll-x>
+    <view class="category-list">
+      <view 
+        class="category-item {{currentCategory === item.id ? 'active' : ''}}"
+        wx:for="{{categories}}" 
+        wx:key="id"
+        bindtap="onCategoryChange"
+        data-id="{{item.id}}">
+        {{item.name}}
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 内容列表 -->
+  <scroll-view 
+    class="content-list" 
+    scroll-y
+    bindscrolltolower="loadMore"
+    lower-threshold="100">
+    <view class="article-card" wx:for="{{articles}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}">
+      <view class="article-header">
+        <text class="article-title">{{item.title}}</text>
+        <view class="article-meta">
+          <text class="category-tag">{{item.category}}</text>
+          <text class="time">{{item.publishTime}}</text>
+        </view>
+      </view>
+      <text class="article-summary">{{item.summary}}</text>
+      <view class="article-footer">
+        <view class="stats">
+          <text class="stat-item">👁 {{item.views}}</text>
+          <text class="stat-item">❤️ {{item.likes}}</text>
+        </view>
+        <view class="audio-indicator" wx:if="{{item.hasAudio}}">
+          <text>🎧 {{item.duration}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="loading" wx:if="{{loading}}">加载中...</view>
+    <view class="no-more" wx:if="{{noMore}}">没有更多了</view>
+  </scroll-view>
+
+  <!-- 搜索按钮 -->
+  <view class="search-btn" bindtap="goToSearch">
+    <image src="/images/search.png" class="search-icon"></image>
+  </view>
+</view>

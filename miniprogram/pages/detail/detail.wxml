@@ -1,0 +1,91 @@
+<view class="container">
+  <!-- 音频播放器 -->
+  <view class="audio-player" wx:if="{{article.audioUrl}}">
+    <view class="player-controls">
+      <image 
+        class="play-btn" 
+        src="{{isPlaying ? '/images/pause.png' : '/images/play.png'}}"
+        bindtap="togglePlay">
+      </image>
+      <view class="progress-bar">
+        <slider 
+          value="{{progress}}" 
+          max="100" 
+          block-size="12"
+          bindchange="onProgressChange"
+          activeColor="#1a1a2e"
+          backgroundColor="#e5e5e5">
+        </slider>
+        <view class="time-info">
+          <text>{{currentTime}}</text>
+          <text>{{totalTime}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 文章头部 -->
+  <view class="article-header">
+    <text class="article-title">{{article.title}}</text>
+    <view class="article-meta">
+      <text class="category">{{article.category}}</text>
+      <text class="time">{{article.publishTime}}</text>
+      <text class="source">来源: {{article.source}}</text>
+    </view>
+  </view>
+
+  <!-- 层级切换 -->
+  <view class="layer-tabs">
+    <view 
+      class="layer-tab {{currentLayer === index ? 'active' : ''}}"
+      wx:for="{{layers}}" 
+      wx:key="index"
+      bindtap="switchLayer"
+      data-index="{{index}}">
+      {{item.name}}
+    </view>
+  </view>
+
+  <!-- 内容区域 -->
+  <scroll-view class="content-area" scroll-y>
+    <view class="content-text">
+      <rich-text nodes="{{currentContent}}"></rich-text>
+    </view>
+
+    <!-- AI交互窗口 -->
+    <view class="ai-chat-section">
+      <view class="chat-header">💬 有疑问？问AI助手</view>
+      <view class="chat-messages">
+        <view 
+          class="message {{msg.role}}"
+          wx:for="{{chatMessages}}" 
+          wx:key="index">
+          <text>{{msg.content}}</text>
+        </view>
+      </view>
+      <view class="chat-input-box">
+        <input 
+          class="chat-input" 
+          placeholder="输入你的问题..."
+          value="{{inputText}}"
+          bindinput="onInput"
+          confirm-type="send"
+          bindconfirm="sendMessage">
+        </input>
+        <button class="send-btn" bindtap="sendMessage">发送</button>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 底部操作栏 -->
+  <view class="action-bar">
+    <view class="action-btn" bindtap="toggleFavorite">
+      <image src="{{isFavorited ? '/images/favorited.png' : '/images/favorite.png'}}"></image>
+      <text>{{isFavorited ? '已收藏' : '收藏'}}</text>
+    </view>
+    <view class="action-btn" bindtap="shareArticle">
+      <image src="/images/share.png"></image>
+      <text>分享</text>
+    </view>
+  </view>
+</view>

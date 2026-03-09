@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>滴答学术 - AI技术播客平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 48px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .categories {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            overflow-x: auto;
+            padding: 10px 0;
+        }
+
+        .category-btn {
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid white;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s;
+            font-size: 16px;
+        }
+
+        .category-btn:hover, .category-btn.active {
+            background: white;
+            color: #667eea;
+        }
+
+        .articles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .article-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+        }
+
+        .article-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .view-detail-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .view-detail-btn:hover {
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .article-header {
+            margin-bottom: 15px;
+        }
+
+        .article-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .article-title-link {
+            color: #667eea;
+            text-decoration: none;
+            transition: color 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .article-title-link:hover {
+            color: #764ba2;
+        }
+
+        .external-link-icon {
+            font-size: 14px;
+            opacity: 0.6;
+        }
+
+        .article-meta {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .category-tag {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .time {
+            color: #999;
+            font-size: 14px;
+        }
+
+        .article-summary {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .card-hint {
+            position: absolute;
+            bottom: 15px;
+            right: 20px;
+            font-size: 12px;
+            color: #999;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .article-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .stats {
+            display: flex;
+            gap: 15px;
+            color: #999;
+            font-size: 14px;
+        }
+
+        .audio-indicator {
+            color: #52c41a;
+            font-size: 14px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            padding: 30px;
+            border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 10;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 30px;
+            cursor: pointer;
+            color: #999;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .close-btn:hover {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .modal-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            padding-right: 50px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .source-link-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 20px;
+            font-size: 14px;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .source-link-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .layer-tabs {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .layer-tab {
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f5f5f5;
+            color: #666;
+            font-size: 15px;
+        }
+
+        .layer-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .content-text {
+            line-height: 1.8;
+            color: #333;
+            font-size: 16px;
+        }
+
+        .content-text h2 {
+            margin: 30px 0 20px;
+            color: #667eea;
+            font-size: 28px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .content-text h3 {
+            margin: 25px 0 15px;
+            color: #764ba2;
+            font-size: 22px;
+        }
+
+        .content-text h4 {
+            margin: 20px 0 10px;
+            color: #555;
+            font-size: 18px;
+        }
+
+        .content-text p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .content-text pre {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+        }
+
+        .content-text code {
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .content-text ul, .content-text ol {
+            margin-left: 25px;
+            margin-bottom: 15px;
+        }
+
+        .content-text li {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .content-text table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .content-text table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .content-text table td {
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+        }
+
+        .content-text table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        .content-text strong {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .content-text a {
+            color: #667eea;
+            text-decoration: none;
+            border-bottom: 1px dashed #667eea;
+        }
+
+        .content-text a:hover {
+            color: #764ba2;
+            border-bottom-color: #764ba2;
+        }
+
+        /* 特殊内容块样式 */
+        .paper-header {
+            background: linear-gradient(135deg, #e8f4ff 0%, #f3e8ff 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+
+        .meta-info {
+            margin-top: 15px;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .theory-box, .algorithm-flow, .application-case {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #764ba2;
+        }
+
+        .terminology {
+            background: #fff9e6;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .architecture-diagram {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .code-section {
+            margin: 25px 0;
+        }
+
+        .visualization {
+            background: #e8f4ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .resources {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .future-work {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .resources-section {
+            background: #fff;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .conclusion {
+            background: linear-gradient(135deg, #e8f4ff 0%, #f3e8ff 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 25px 0;
+            border-left: 5px solid #667eea;
+        }
+
+        .chat-section {
+            margin-top: 30px;
+            padding: 25px;
+            background: #f9f9f9;
+            border-radius: 15px;
+        }
+
+        .chat-header {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .chat-input-box {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .chat-input:focus {
+            border-color: #667eea;
+        }
+
+        .send-btn {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 15px;
+            transition: transform 0.2s;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .chat-messages {
+            margin-bottom: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .message {
+            padding: 12px 18px;
+            margin-bottom: 10px;
+            border-radius: 15px;
+            line-height: 1.6;
+        }
+
+        .message.user {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-left: 60px;
+        }
+
+        .message.assistant {
+            background: #f0f0f0;
+            color: #333;
+            margin-right: 60px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            font-size: 18px;
+        }
+
+        .status-bar {
+            background: rgba(255,255,255,0.2);
+            padding: 15px 25px;
+            border-radius: 15px;
+            color: white;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .articles-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 32px;
+            }
+
+            .status-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 滴答学术</h1>
+            <p>AI驱动的技术播客平台 · 每3小时更新前沿技术</p>
+        </div>
+
+        <div class="status-bar">
+            <div class="status-item">
+                <span>📡</span>
+                <span>演示模式运行中</span>
+            </div>
+            <div class="status-item">
+                <span>📊</span>
+                <span id="article-count">加载中...</span>
+            </div>
+            <div class="status-item" style="font-size: 13px; opacity: 0.9;">
+                <span>💡</span>
+                <span>点击标题🔗查看原文 | 点击➜查看详情</span>
+            </div>
+        </div>
+
+        <div class="categories">
+            <button class="category-btn active" data-category="all">全部</button>
+            <button class="category-btn" data-category="world-model">AI世界模型</button>
+            <button class="category-btn" data-category="embodied">具身智能</button>
+            <button class="category-btn" data-category="bci">脑机接口</button>
+            <button class="category-btn" data-category="chip">芯片架构</button>
+            <button class="category-btn" data-category="biotech">生物医疗</button>
+        </div>
+
+        <div class="articles-grid" id="articles-grid">
+            <div class="loading">正在加载文章...</div>
+        </div>
+    </div>
+
+    <div class="modal" id="article-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+                <h2 class="modal-title" id="modal-title"></h2>
+                <div class="article-meta" id="modal-meta"></div>
+                <div class="layer-tabs">
+                    <div class="layer-tab active" data-layer="0">💡 概念</div>
+                    <div class="layer-tab" data-layer="1">🔬 原理</div>
+                    <div class="layer-tab" data-layer="2">💻 实现</div>
+                    <div class="layer-tab" data-layer="3">🚀 应用</div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="content-text" id="modal-content"></div>
+                
+                <div class="chat-section">
+                    <div class="chat-header">💬 有疑问？问AI助手</div>
+                    <div class="chat-messages" id="chat-messages"></div>
+                    <div class="chat-input-box">
+                        <input type="text" class="chat-input" id="chat-input" placeholder="输入你的问题...">
+                        <button class="send-btn" onclick="sendMessage()">发送</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000/api';
+        let currentArticle = null;
+        let currentCategory = 'all';
+        let chatMessages = [];
+
+        // 加载文章列表
+        async function loadArticles(category = 'all') {
+            currentCategory = category;
+            const grid = document.getElementById('articles-grid');
+            grid.innerHTML = '<div class="loading">正在加载文章...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/articles?category=${category}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayArticles(data.data);
+                    updateStats(data.data.length);
+                }
+            } catch (error) {
+                grid.innerHTML = '<div class="loading">加载失败，请确保后端服务正在运行</div>';
+            }
+        }
+
+        // 显示文章列表
+        function displayArticles(articles) {
+            const grid = document.getElementById('articles-grid');
+            
+            if (articles.length === 0) {
+                grid.innerHTML = '<div class="loading">暂无文章</div>';
+                return;
+            }
+
+            grid.innerHTML = articles.map(article => `
+                <div class="article-card" data-article-id="${article.id}">
+                    <div class="view-detail-btn" title="点击查看概念、原理、实现、应用">
+                        ➜
+                    </div>
+                    <div class="article-header">
+                        <div class="article-title">
+                            <a href="${article.sourceUrl}" target="_blank" class="article-title-link" title="点击查看原始论文">
+                                ${article.title}
+                                <span class="external-link-icon">🔗</span>
+                            </a>
+                        </div>
+                        <div class="article-meta">
+                            <span class="category-tag">${getCategoryName(article.category)}</span>
+                            <span class="time">${article.publishTime}</span>
+                        </div>
+                    </div>
+                    <div class="article-summary">${article.summary}</div>
+                    <div class="article-footer">
+                        <div class="stats">
+                            <span>👁 ${article.views}</span>
+                            <span>❤️ ${article.likes}</span>
+                        </div>
+                        ${article.hasAudio ? `<div class="audio-indicator">🎧 ${article.duration}</div>` : ''}
+                    </div>
+                </div>
+            `).join('');
+
+            // 使用事件委托绑定点击事件
+            document.querySelectorAll('.view-detail-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    console.log('Button clicked!'); // 调试信息
+                    const card = this.closest('.article-card');
+                    const articleId = card.dataset.articleId;
+                    console.log('Article ID:', articleId); // 调试信息
+                    openArticle(articleId);
+                });
+            });
+            console.log('Event listeners attached to', document.querySelectorAll('.view-detail-btn').length, 'buttons'); // 调试信息
+        }
+
+        // 打开文章详情
+        async function openArticle(id) {
+            console.log('openArticle called with id:', id); // 调试信息
+            try {
+                const response = await fetch(`${API_BASE}/articles/${id}`);
+                const data = await response.json();
+                
+                console.log('Article data received:', data); // 调试信息
+                if (data.success) {
+                    currentArticle = data.data;
+                    chatMessages = [];
+                    showArticleModal(data.data);
+                }
+            } catch (error) {
+                console.error('Error loading article:', error); // 调试信息
+                alert('加载文章失败');
+            }
+        }
+
+        // 显示文章模态框
+        function showArticleModal(article) {
+            const titleElement = document.getElementById('modal-title');
+            titleElement.innerHTML = `
+                <span style="flex: 1;">${article.title}</span>
+                <a href="${article.sourceUrl}" target="_blank" class="source-link-btn" title="查看原始论文">
+                    📄 原文
+                </a>
+            `;
+            
+            document.getElementById('modal-meta').innerHTML = `
+                <span class="category-tag">${getCategoryName(article.category)}</span>
+                <span class="time">${article.publishTime}</span>
+                <span class="time">来源: ${article.source}</span>
+            `;
+            
+            switchLayer(0);
+            document.getElementById('chat-messages').innerHTML = '';
+            document.getElementById('article-modal').classList.add('active');
+        }
+
+        // 切换内容层级
+        function switchLayer(index) {
+            const tabs = document.querySelectorAll('.layer-tab');
+            tabs.forEach((tab, i) => {
+                tab.classList.toggle('active', i === index);
+            });
+
+            const content = currentArticle.layers[index].content;
+            document.getElementById('modal-content').innerHTML = content;
+        }
+
+        // 关闭模态框
+        function closeModal() {
+            document.getElementById('article-modal').classList.remove('active');
+        }
+
+        // 发送消息
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            
+            if (!message) return;
+
+            chatMessages.push({ role: 'user', content: message });
+            displayChatMessages();
+            input.value = '';
+
+            try {
+                const response = await fetch(`${API_BASE}/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        articleId: currentArticle.id,
+                        message: message,
+                        history: chatMessages
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    chatMessages.push({ role: 'assistant', content: data.data.reply });
+                    displayChatMessages();
+                }
+            } catch (error) {
+                alert('发送失败');
+            }
+        }
+
+        // 显示聊天消息
+        function displayChatMessages() {
+            const container = document.getElementById('chat-messages');
+            container.innerHTML = chatMessages.map(msg => `
+                <div class="message ${msg.role}">${msg.content}</div>
+            `).join('');
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // 更新统计
+        function updateStats(count) {
+            document.getElementById('article-count').textContent = `${count} 篇文章`;
+        }
+
+        // 获取分类名称
+        function getCategoryName(category) {
+            const names = {
+                'world-model': 'AI世界模型',
+                'embodied': '具身智能',
+                'quantum': '量子计算',
+                'bci': '脑机接口',
+                'chip': '芯片架构',
+                'biotech': '生物医疗'
+            };
+            return names[category] || category;
+        }
+
+        // 分类按钮事件
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                loadArticles(btn.dataset.category);
+            });
+        });
+
+        // 层级切换事件
+        document.querySelectorAll('.layer-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                switchLayer(parseInt(tab.dataset.layer));
+            });
+        });
+
+        // 回车发送消息
+        document.getElementById('chat-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        // 初始加载
+        loadArticles();
+    </script>
+</body>
+</html>

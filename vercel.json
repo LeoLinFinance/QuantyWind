@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "name": "didaxueshu",
+  "builds": [
+    {
+      "src": "demo-web/index-fixed.html",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/demo-web/$1"
+    }
+  ]
+}
