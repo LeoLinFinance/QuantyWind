@@ -45,3 +45,6 @@ electron/logs
 resources/icon.ico
 resources/icon.icns
 resources/icon.png
+
+# Python runtime（Electron 打包用，不应提交）
+python-runtime/
