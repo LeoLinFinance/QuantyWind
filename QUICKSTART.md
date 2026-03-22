@@ -1,141 +1,140 @@
 # 快速开始指南
 
+本指南将帮助您在 5 分钟内启动量数风行平台。
+
 ## 前置要求
 
-1. 安装Node.js (v16+)
-2. 安装MongoDB (v4.4+)
-3. 安装微信开发者工具
-4. 准备API密钥：
-   - Kimi API Key 或 Claude API Key
-   - GitHub Token
-   - HuggingFace Token（可选）
+- Python 3.9+
+- Node.js 16+
+- Git
 
-## 5分钟快速启动
+## 快速安装
 
-### 1. 配置环境变量
+### 1. 克隆项目
 
 ```bash
-cd backend
+git clone https://github.com/yourusername/quantywind.git
+cd quantywind
+```
+
+### 2. 配置环境变量
+
+```bash
 cp .env.example .env
 ```
 
-编辑 `.env` 文件，填入你的API密钥：
+编辑 `.env` 文件（可选，也可以在应用内配置）：
 
 ```env
-MONGODB_URI=mongodb://localhost:27017/didaxueshu
-PORT=3000
-KIMI_API_KEY=your_kimi_api_key_here
-GITHUB_TOKEN=your_github_token_here
+# 留空，稍后在应用设置页面配置
+STEPFUN_API_KEY=
+KIMI_API_KEY=
 ```
 
-### 2. 启动MongoDB
+### 3. 启动后端（终端 1）
 
 ```bash
-# macOS (使用Homebrew)
-brew services start mongodb-community
-
-# Linux
-sudo systemctl start mongod
-
-# Windows
-net start MongoDB
-```
-
-### 3. 启动后端服务
-
-```bash
-# 方式1：使用启动脚本（推荐）
-./start.sh
-
-# 方式2：手动启动
+# 安装依赖
 cd backend
+pip install -r requirements.txt
+
+# 初始化数据库
+alembic upgrade head
+
+# 启动服务
+python main.py
+```
+
+后端将在 `http://localhost:8000` 启动
+
+### 4. 启动前端（终端 2）
+
+```bash
+# 在项目根目录
 npm install
-npm start
+npm run dev
 ```
 
-### 4. 测试后端
+前端将在 `http://localhost:3000` 启动
 
-访问 http://localhost:3000/health 应该看到：
+### 5. 配置 API Key
 
-```json
-{
-  "status": "ok",
-  "timestamp": "2024-xx-xx..."
-}
-```
+1. 访问 `http://localhost:3000/settings`
+2. 点击"添加 API Key"
+3. 选择服务商（推荐：阶跃星辰）
+4. 输入您的 API Key
+5. 保存
 
-### 5. 配置小程序
+### 6. 开始使用
 
-1. 打开 `miniprogram/app.js`
-2. 修改 `apiBase` 为你的后端地址（开发环境可用 `http://localhost:3000/api`）
-3. 打开微信开发者工具
-4. 导入项目，选择 `miniprogram` 目录
-5. 填入你的AppID（测试可用测试号）
+访问 `http://localhost:3000/expert-forum` 开始与 AI 专家对话！
 
-### 6. 运行小程序
+## 获取 API Key
 
-在微信开发者工具中点击"编译"，即可看到小程序界面。
+### 阶跃星辰（推荐，国内访问快）
 
-## 测试采集功能
+1. 访问 [platform.stepfun.com](https://platform.stepfun.com)
+2. 注册账号
+3. 在控制台创建 API Key
+4. 新用户通常有免费额度
 
-### 手动触发一次采集
+### Kimi（支持在线搜索）
 
-```bash
-cd backend
-node crawler/scheduler.js
-```
-
-观察控制台输出，应该能看到采集进度。
-
-### 查看采集结果
-
-```bash
-# 使用MongoDB客户端
-mongosh didaxueshu
-
-# 查询文章数量
-db.articles.countDocuments()
-
-# 查看最新文章
-db.articles.find().sort({createdAt: -1}).limit(1).pretty()
-```
+1. 访问 [platform.moonshot.cn](https://platform.moonshot.cn)
+2. 注册账号
+3. 在控制台创建 API Key
+4. 新用户通常有免费额度
 
 ## 常见问题
 
-### Q: MongoDB连接失败
-A: 确保MongoDB服务已启动，检查连接字符串是否正确
+### Q: 后端启动失败？
 
-### Q: AI生成失败
-A: 检查API密钥是否正确，确认账户有足够额度
+A: 检查 Python 版本和依赖安装：
 
-### Q: 小程序无法请求API
-A: 
-1. 开发环境：在微信开发者工具中勾选"不校验合法域名"
-2. 生产环境：在小程序后台配置服务器域名白名单
+```bash
+python --version  # 应该是 3.9+
+pip list | grep fastapi
+```
 
-### Q: 采集不到数据
-A: 
-1. 检查GitHub Token权限
-2. 确认网络可以访问GitHub/HuggingFace/arXiv
-3. 查看错误日志
+### Q: 前端无法连接后端？
+
+A: 确认后端在 8000 端口运行：
+
+```bash
+curl http://localhost:8000/health
+```
+
+### Q: AI 功能不可用？
+
+A: 检查是否配置了 API Key：
+
+1. 访问设置页面
+2. 确认 API Key 已添加且状态为"启用"
+3. 查看浏览器控制台和后端日志
+
+### Q: 数据库错误？
+
+A: 重新初始化数据库：
+
+```bash
+cd backend
+rm -f data/*.db  # 删除旧数据库（如果使用 SQLite）
+alembic upgrade head
+```
 
 ## 下一步
 
-- 阅读 [ARCHITECTURE.md](./ARCHITECTURE.md) 了解系统架构
-- 阅读 [DEPLOYMENT.md](./DEPLOYMENT.md) 了解生产部署
-- 查看 [TODO.md](./TODO.md) 了解开发计划
+- 📖 阅读完整 [README](README.md)
+- 🎯 查看[功能文档](docs/)
+- 🤝 参与[贡献](CONTRIBUTING.md)
+- 💬 加入社区讨论
 
-## 获取帮助
+## 需要帮助？
 
-如遇到问题：
-1. 查看控制台错误日志
-2. 检查 `.env` 配置
-3. 确认所有服务正常运行
-4. 查看MongoDB日志
+- 提交 [Issue](https://github.com/yourusername/quantywind/issues)
+- 查看 [FAQ](docs/FAQ.md)
+- 发送邮件：your.email@example.com
 
-## 开发建议
+---
 
-1. 先用少量数据测试AI生成效果
-2. 调整采集频率避免API限流
-3. 定期备份数据库
-4. 监控API调用成本
+祝您使用愉快！如果觉得有帮助，请给我们一个 ⭐

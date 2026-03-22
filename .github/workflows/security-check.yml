@@ -1,0 +1,87 @@
+name: Security Check
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  secret-scan:
+    runs-on: ubuntu-latest
+    name: Scan for secrets
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    
+    - name: TruffleHog OSS
+      uses: trufflesecurity/trufflehog@main
+      with:
+        path: ./
+        base: ${{ github.event.repository.default_branch }}
+        head: HEAD
+        extra_args: --debug --only-verified
+    
+    - name: Check for hardcoded API keys
+      run: |
+        echo "Checking for potential API keys..."
+        
+        # 检查常见的 API Key 模式
+        if grep -r "sk-[a-zA-Z0-9]\{20,\}" --exclude-dir=node_modules --exclude-dir=.git --exclude="*.md" .; then
+          echo "❌ Found potential API keys starting with 'sk-'"
+          exit 1
+        fi
+        
+        # 检查长字符串（可能是 API Key）
+        if grep -r "['\"][a-zA-Z0-9]\{40,\}['\"]" --exclude-dir=node_modules --exclude-dir=.git --exclude="*.md" --exclude="*.lock" .; then
+          echo "⚠️  Found long strings that might be API keys"
+          echo "Please review manually"
+        fi
+        
+        echo "✅ No obvious API keys found"
+    
+    - name: Check .env files
+      run: |
+        if git ls-files | grep -E "^\.env$"; then
+          echo "❌ .env file is tracked in git!"
+          exit 1
+        fi
+        echo "✅ .env file is not tracked"
+
+  dependency-check:
+    runs-on: ubuntu-latest
+    name: Check dependencies
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    
+    - name: Install dependencies
+      run: |
+        cd backend
+        pip install -r requirements.txt
+        pip install safety
+    
+    - name: Run safety check
+      run: |
+        cd backend
+        safety check --json || true
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+    
+    - name: Install npm dependencies
+      run: npm ci
+    
+    - name: Run npm audit
+      run: npm audit --audit-level=moderate || true

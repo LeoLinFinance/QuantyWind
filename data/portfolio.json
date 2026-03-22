@@ -1,0 +1,60 @@
+{
+  "holdings": [
+    {
+      "symbol": "AAPL",
+      "shares": 100,
+      "cost_basis": 150.0,
+      "added_date": "2026-03-17T14:09:21.638802"
+    },
+    {
+      "symbol": "MSFT",
+      "shares": 80,
+      "cost_basis": 300.0,
+      "added_date": "2026-03-17T14:09:21.639491"
+    },
+    {
+      "symbol": "GOOGL",
+      "shares": 40,
+      "cost_basis": 120.0,
+      "added_date": "2026-03-17T14:09:21.639818"
+    },
+    {
+      "symbol": "NVDA",
+      "shares": 30,
+      "cost_basis": 400.0,
+      "added_date": "2026-03-17T14:09:21.640142"
+    },
+    {
+      "symbol": "TSLA",
+      "shares": 50,
+      "cost_basis": 200.0,
+      "added_date": "2026-03-17T14:09:21.640487"
+    },
+    {
+      "symbol": "JPM",
+      "shares": 60,
+      "cost_basis": 140.0,
+      "added_date": "2026-03-17T14:09:21.640829"
+    },
+    {
+      "symbol": "JNJ",
+      "shares": 70,
+      "cost_basis": 160.0,
+      "added_date": "2026-03-17T14:09:21.641238"
+    },
+    {
+      "symbol": "0700.HK",
+      "shares": 200,
+      "cost_basis": 350.0,
+      "added_date": "2026-03-17T14:09:21.641634"
+    },
+    {
+      "symbol": "9988.HK",
+      "shares": 150,
+      "cost_basis": 80.0,
+      "added_date": "2026-03-17T14:09:21.642024"
+    }
+  ],
+  "cash": 100000.0,
+  "last_updated": "2026-03-17T14:09:21.642029"
+}

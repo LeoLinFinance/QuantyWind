@@ -1,30 +1,47 @@
-# Node modules
-node_modules/
-backend/node_modules/
-
-# Environment variables
+node_modules
+dist
 .env
-backend/.env
-
-# Database backups
-backend/data/backup-*.db
-
-# Logs
-*.log
-npm-debug.log*
-
-# OS files
+.env.local
+.env.*.local
+__pycache__
+*.pyc
+.venv
+venv
 .DS_Store
-Thumbs.db
+*.log
+data/cache
+data/config/*.json
+.pytest_cache
+coverage
+*.egg-info
+build
 
-# IDE
-.vscode/
-.idea/
+# Docker
+*.sql.backup
+backup.sql
 
-# Temporary files
-*.tmp
-*.swp
-*~
+# SSL 证书（开发环境）
+nginx/ssl/*.pem
+nginx/ssl/*.key
+nginx/ssl/*.crt
 
-# Jupyter notebooks
-.ipynb_checkpoints/
+# 数据库数据
+*.db
+*.sqlite
+
+# 敏感配置
+secrets.txt
+*.secret
+
+# Electron 构建产物
+dist-frontend
+out
+release
+
+# Electron 日志
+electron/logs
+
+# 打包资源
+resources/icon.ico
+resources/icon.icns
+resources/icon.png

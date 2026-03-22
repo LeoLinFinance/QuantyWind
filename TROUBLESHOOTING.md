@@ -1,208 +1,204 @@
-# 故障排查指南
+# 智者论坛故障排除指南
 
-## 🔍 问题：点击➜按钮没有反应
+## 问题：专家和资讯不说话
 
-如果点击文章卡片右上角的➜按钮没有任何反应，请按以下步骤排查：
+### 症状
+- 打开"接收资讯"和"开始讨论"开关
+- 只显示系统消息："专家讨论开始..."、"提示：建议先开启..."、"专家讨论完成"
+- 没有实际的资讯内容和专家分析
 
-## 步骤1：清除浏览器缓存
+### 根本原因
+**后端服务未启动！**
 
-浏览器可能缓存了旧版本的HTML文件。
+## 解决步骤
 
-### Chrome/Edge
-1. 打开 http://localhost:8080
-2. 按 `Cmd+Shift+R` (Mac) 或 `Ctrl+Shift+R` (Windows/Linux)
-3. 或者按 `F12` 打开开发者工具
-4. 右键点击刷新按钮，选择"清空缓存并硬性重新加载"
-
-### Safari
-1. 打开 http://localhost:8080
-2. 按 `Cmd+Option+E` 清空缓存
-3. 然后按 `Cmd+R` 刷新页面
-
-### Firefox
-1. 打开 http://localhost:8080
-2. 按 `Cmd+Shift+R` (Mac) 或 `Ctrl+Shift+R` (Windows/Linux)
-
-## 步骤2：检查浏览器控制台
-
-打开浏览器开发者工具查看是否有错误：
-
-1. 按 `F12` 或 `Cmd+Option+I` (Mac) 打开开发者工具
-2. 切换到 "Console" (控制台) 标签
-3. 刷新页面
-4. 查看是否有红色错误信息
-
-### 应该看到的正常日志
-```
-Event listeners attached to X buttons
-```
-
-### 点击按钮后应该看到
-```
-Button clicked!
-Article ID: 123
-openArticle called with id: 123
-Article data received: {success: true, data: {...}}
-```
-
-## 步骤3：使用测试页面
-
-我创建了一个简单的测试页面来验证功能：
+### 步骤1: 检查后端是否运行
 
 ```bash
-# 打开测试页面
-open http://localhost:8080/test.html
+# 方法1: 检查进程
+ps aux | grep "python.*main"
+
+# 方法2: 检查端口
+lsof -i :8000
+
+# 方法3: 测试API
+curl http://localhost:8000/
 ```
 
-或在浏览器中访问：http://localhost:8080/test.html
+如果没有输出或报错，说明后端未运行。
 
-### 测试页面功能
-1. 点击测试卡片右上角的➜按钮
-2. 应该看到"成功！按钮被点击了"的消息
-3. 点击"测试API"按钮
-4. 应该看到文章列表
-5. 点击"测试打开这篇文章"按钮
-6. 应该看到文章详情加载成功
-
-如果测试页面正常工作，说明代码没问题，是主页面的缓存问题。
-
-## 步骤4：检查服务器状态
-
-确保后端服务正在运行：
+### 步骤2: 启动后端
 
 ```bash
-# 检查服务器是否运行
-curl http://localhost:3000/health
+# 进入项目目录
+cd /Users/linyuxi/字节
 
-# 检查文章API
-curl http://localhost:3000/api/articles
-
-# 检查特定文章
-curl http://localhost:3000/api/articles/8
+# 启动后端
+python3 backend/main.py
 ```
 
-### 预期输出
-```json
-{
-  "success": true,
-  "data": [...]
-}
+你应该看到类似的输出：
+```
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [xxxxx] using StatReload
+INFO:     Started server process [xxxxx]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
 ```
 
-## 步骤5：检查HTML文件
+### 步骤3: 初始化专家配置（如果还没做）
 
-验证HTML文件是否包含最新代码：
+在另一个终端：
+```bash
+cd /Users/linyuxi/字节
+python3 init_expert_configs.py
+```
+
+### 步骤4: 验证后端工作
 
 ```bash
-# 检查是否有事件绑定代码
-grep -A 5 "addEventListener.*view-detail-btn" demo-web/index.html
-
-# 检查是否有data-article-id属性
-grep "data-article-id" demo-web/index.html
+python3 check_backend_status.py
 ```
 
-应该能看到相关代码。
-
-## 步骤6：重启服务器
-
-如果以上都不行，尝试重启服务器：
-
-```bash
-# 停止当前服务器 (Ctrl+C)
-
-# 重新启动
-cd backend
-node production-server.js
-
-# 在另一个终端启动web服务器
-cd demo-web
-python3 -m http.server 8080
+应该看到：
+```
+✅ 后端正在运行
+✅ 找到 5 个专家配置
+✅ 新闻获取成功
+✅ 对话历史包含 X 条消息
 ```
 
-## 步骤7：检查网络请求
+### 步骤5: 刷新前端
 
-在浏览器开发者工具中：
-
-1. 切换到 "Network" (网络) 标签
-2. 刷新页面
-3. 查看是否成功加载 `index.html`
-4. 点击按钮后，查看是否有 `/api/articles/X` 的请求
+1. 在浏览器中刷新页面（F5或Cmd+R）
+2. 打开"接收资讯"开关
+3. 等待1-2秒，应该看到蓝色的新闻总结
+4. 打开"开始讨论"开关
+5. 等待1-3分钟，应该看到绿色的专家分析
 
 ## 常见问题
 
-### Q: 按钮显示但点击没反应
-A: 这通常是浏览器缓存问题。强制刷新页面（Cmd+Shift+R）。
+### Q1: 后端启动失败
+**错误**: `ModuleNotFoundError: No module named 'xxx'`
 
-### Q: 控制台显示"openArticle is not defined"
-A: JavaScript代码可能没有正确加载。检查HTML文件是否完整。
-
-### Q: 控制台显示"Failed to fetch"
-A: 后端服务器可能没有运行。检查 http://localhost:3000/health
-
-### Q: 按钮根本不显示
-A: CSS可能没有加载。检查页面源代码。
-
-### Q: 点击后显示"加载文章失败"
-A: API返回了错误。检查后端日志和数据库。
-
-## 快速诊断命令
-
-运行以下命令进行快速诊断：
-
+**解决**:
 ```bash
-# 1. 检查服务器
-echo "=== 检查后端服务 ==="
-curl -s http://localhost:3000/health | python3 -m json.tool
-
-# 2. 检查文章数量
-echo -e "\n=== 检查文章数量 ==="
-sqlite3 backend/data/didaxueshu.db "SELECT COUNT(*) FROM articles"
-
-# 3. 检查HTML文件
-echo -e "\n=== 检查HTML代码 ==="
-grep -c "addEventListener" demo-web/index.html
-grep -c "data-article-id" demo-web/index.html
-
-# 4. 检查进程
-echo -e "\n=== 检查运行进程 ==="
-lsof -i :3000
-lsof -i :8080
+pip3 install -r requirements.txt
 ```
 
-## 如果还是不行
+### Q2: 端口被占用
+**错误**: `Address already in use`
 
-请提供以下信息：
-
-1. 浏览器类型和版本
-2. 浏览器控制台的完整错误信息
-3. 网络标签中的请求列表
-4. 运行上述诊断命令的输出
-
-## 临时解决方案
-
-如果急需使用，可以直接访问API：
-
+**解决**:
 ```bash
-# 获取文章列表
-open http://localhost:3000/api/articles
+# 找到占用端口的进程
+lsof -i :8000
 
-# 查看特定文章（替换ID）
-open http://localhost:3000/api/articles/8
+# 杀死进程
+kill -9 <PID>
+
+# 或者修改端口
+# 编辑 backend/main.py，将 port=8000 改为 port=8001
 ```
 
-或者使用curl：
+### Q3: 前端连接不上后端
+**错误**: 浏览器控制台显示 `Failed to fetch` 或 `Network Error`
 
+**检查**:
+1. 后端是否在运行？
+2. 端口是否正确？（默认8000）
+3. 前端API地址是否正确？（检查 `src/pages/ExpertForumPage.tsx` 中的 `http://localhost:8000`）
+
+### Q4: 专家分析超时
+**症状**: 等待很久后显示"专家讨论完成"，但没有分析内容
+
+**原因**: Kimi API调用时间长（20-40秒/专家）
+
+**解决**: 
+- 耐心等待（5个专家需要1.5-3分钟）
+- 检查后端日志是否有错误
+- 检查 `.env` 文件中的 `KIMI_API_KEY` 是否配置
+
+### Q5: 新闻总结不显示
+**症状**: 打开"接收资讯"后没有反应
+
+**检查**:
+1. 后端日志是否有错误
+2. StepFun API是否配置（`.env` 中的 `STEPFUN_API_KEY`）
+3. 网络连接是否正常
+
+## 完整启动流程
+
+### 终端1: 启动后端
 ```bash
-# 查看文章详情
-curl http://localhost:3000/api/articles/8 | python3 -m json.tool
+cd /Users/linyuxi/字节
+python3 backend/main.py
 ```
+
+保持这个终端运行，不要关闭。
+
+### 终端2: 启动前端（如果需要）
+```bash
+cd /Users/linyuxi/字节
+npm run dev
+```
+
+### 浏览器
+访问 `http://localhost:5173`（或前端显示的地址）
+
+## 验证清单
+
+- [ ] 后端正在运行（`ps aux | grep python.*main`）
+- [ ] 端口8000可访问（`curl http://localhost:8000/`）
+- [ ] 专家配置已初始化（`python3 init_expert_configs.py`）
+- [ ] 前端已启动（`npm run dev`）
+- [ ] 浏览器已打开智者论坛页面
+- [ ] 打开"接收资讯"后1-2秒内显示新闻
+- [ ] 打开"开始讨论"后1-3分钟内显示专家分析
+
+## 调试工具
+
+### 1. 检查后端状态
+```bash
+python3 check_backend_status.py
+```
+
+### 2. 诊断专家论坛
+```bash
+python3 diagnose_expert_forum.py
+```
+
+### 3. 测试简单专家调用
+```bash
+python3 test_simple_expert.py
+```
+
+### 4. 查看后端日志
+后端终端会显示所有API调用和错误信息。
+
+### 5. 查看浏览器控制台
+按F12打开开发者工具，查看Console和Network标签。
 
 ## 联系支持
 
-如果以上步骤都无法解决问题，请：
+如果以上步骤都无法解决问题，请提供：
+1. 后端日志（终端输出）
+2. 浏览器控制台错误
+3. `python3 check_backend_status.py` 的输出
+4. 截图
 
-1. 截图浏览器控制台的错误信息
-2. 提供诊断命令的输出
-3. 说明具体的操作步骤和现象
+## 快速修复命令
 
-这将帮助快速定位问题！
+```bash
+# 一键检查和修复
+cd /Users/linyuxi/字节
+
+# 1. 初始化配置
+python3 init_expert_configs.py
+
+# 2. 检查状态
+python3 check_backend_status.py
+
+# 3. 如果后端未运行，启动它
+python3 backend/main.py
+```

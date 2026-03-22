@@ -1,0 +1,87 @@
+appId: com.quantdata.fengxing
+productName: 量数风行
+copyright: Copyright © 2024
+
+directories:
+  output: dist
+  buildResources: resources
+
+files:
+  - electron/**/*
+  - dist-frontend/**/*
+  - package.json
+  - "!**/.git"
+  - "!**/.DS_Store"
+  - "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}"
+  - "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}"
+  - "!**/node_modules/*.d.ts"
+  - "!**/node_modules/.bin"
+  - "!**/*.{iml,o,hprof,orig,pyc,pyo,rbc,swp,csproj,sln,xproj}"
+  - "!.editorconfig"
+  - "!**/._*"
+  - "!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,.gitignore,.gitattributes}"
+  - "!**/{__pycache__,thumbs.db,.flowconfig,.idea,.vs,.nyc_output}"
+  - "!**/{appveyor.yml,.travis.yml,circle.yml}"
+  - "!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}"
+
+asarUnpack:
+  - "**/*.node"
+
+# 包含 Python 运行时和后端代码
+extraResources:
+  - from: python-runtime/darwin
+    to: python-runtime
+    filter:
+      - "**/*"
+  - from: backend
+    to: backend
+    filter:
+      - "**/*"
+      - "!**/__pycache__"
+      - "!**/*.pyc"
+      - "!**/.pytest_cache"
+      - "!**/tests"
+      - "!**/*.md"
+
+win:
+  target:
+    - nsis
+  artifactName: ${productName}-${version}-Setup.${ext}
+
+mac:
+  target:
+    - zip
+  category: public.app-category.finance
+  hardenedRuntime: false
+  gatekeeperAssess: false
+
+linux:
+  target:
+    - AppImage
+  category: Finance
+  artifactName: ${productName}-${version}.${ext}
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: ${productName}
+  perMachine: false
+  allowElevation: true
+
+dmg:
+  title: ${productName} ${version}
+  contents:
+    - x: 410
+      y: 150
+      type: link
+      path: /Applications
+    - x: 130
+      y: 150
+      type: file
+
+publish:
+  provider: github
+  owner: your-org
+  repo: quantdata-fengxing

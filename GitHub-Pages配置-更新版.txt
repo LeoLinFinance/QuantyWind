@@ -1,0 +1,33 @@
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ docs目录已创建并推送！
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📝 现在配置GitHub Pages：
+
+1️⃣ 打开设置页面
+   https://github.com/LeoLinFinance/Dida-Scholar/settings/pages
+
+2️⃣ 配置部署
+   Source: Deploy from a branch
+   Branch: main
+   Folder: /docs  ← 选择这个！
+   点击 Save
+
+3️⃣ 等待部署（1-2分钟）
+
+4️⃣ 访问你的网站
+   https://leolinfin.github.io/Dida-Scholar/
+   或
+   https://LeoLinFinance.github.io/Dida-Scholar/
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+💡 注意：
+   - 现在选择 /docs 目录
+   - 网站地址不需要加 index-static.html
+   - 直接访问根路径即可
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 立即配置：
+   https://github.com/LeoLinFinance/Dida-Scholar/settings/pages

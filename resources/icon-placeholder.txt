@@ -1,0 +1,14 @@
+# 应用图标占位符
+
+请将以下图标文件放置在此目录：
+
+1. icon.png - 通用图标（512x512 或更大）
+2. icon.ico - Windows 图标
+3. icon.icns - macOS 图标
+
+可以使用在线工具将 PNG 转换为 ICO 和 ICNS 格式：
+- https://www.icoconverter.com/
+- https://cloudconvert.com/
+
+临时方案：
+如果没有图标，electron-builder 会使用默认图标。
