@@ -51,8 +51,8 @@
 ### 1. 克隆项目
 
 ```bash
-git clone https://github.com/yourusername/quantywind.git
-cd quantywind
+git clone https://github.com/LeoLinFinance/QuantyWind.git
+cd QuantyWind
 ```
 
 ### 2. 配置环境变量
@@ -224,8 +224,7 @@ quantywind/
 
 如有问题或建议，欢迎通过以下方式联系：
 
-- 提交 Issue：[GitHub Issues](https://github.com/yourusername/quantywind/issues)
-- 邮箱：your.email@example.com
+- 提交 Issue：[GitHub Issues](https://github.com/LeoLinFinance/QuantyWind/issues)
 
 ---
 
